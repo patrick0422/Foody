@@ -1,11 +1,11 @@
-package com.example.foodyclone
+package com.example.foodyclone.data.database
 
 import androidx.room.TypeConverter
 import com.example.foodyclone.models.FoodRecipe
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class RecipesTypeAdapter {
+class RecipesTypeConverter {
     val gson = Gson()
 
     @TypeConverter
