@@ -22,6 +22,10 @@ class MainViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
 
+
+
+    /** RETROFIT */
+
     val recipeResponse: MutableLiveData<NetworkResult<FoodRecipe>> = MutableLiveData()
 
     fun getRecipes(queries: Map<String, String>) = viewModelScope.launch {
@@ -32,7 +36,7 @@ class MainViewModel @Inject constructor(
         recipeResponse.value = NetworkResult.Loading()
         if(hasInternetConnection()) {
             try {
-                val response = repository.remoteDataSource.getRecipes(queries)
+                val response = repository.remote.getRecipes(queries)
                 recipeResponse.value = handleFoodRecipesResponse(response)
             } catch (e: Exception) {
                 recipeResponse.value = NetworkResult.Error("Recipe not found.")
