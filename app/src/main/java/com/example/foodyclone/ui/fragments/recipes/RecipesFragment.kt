@@ -75,7 +75,7 @@ class RecipesFragment : Fragment() {
     private fun requestApiData() {
         Log.d("RecipesFragment", "requestApiData: Called")
         mainViewModel.getRecipes(recipesViewModel.applyQueries())
-        mainViewModel.recipeResponse.observe(viewLifecycleOwner, { response ->
+        mainViewModel.recipesResponse.observe(viewLifecycleOwner, { response ->
             when(response) {
                 is NetworkResult.Success -> {
                     hideShimmer()
