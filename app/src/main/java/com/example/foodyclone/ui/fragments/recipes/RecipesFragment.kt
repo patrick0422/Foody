@@ -16,6 +16,7 @@ import com.example.foodyclone.R
 import com.example.foodyclone.adapters.RecipesAdapter
 import com.example.foodyclone.databinding.FragmentRecipesBinding
 import com.example.foodyclone.util.NetworkResult
+import com.example.foodyclone.util.observeOnce
 import com.example.foodyclone.viewmodels.RecipesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -56,7 +57,7 @@ class RecipesFragment : Fragment() {
     private fun readDatabase() {
         lifecycleScope.launch {
             Log.d("RecipesFragment", "readDatabase: Called")
-            mainViewModel.readRecipes.observe(viewLifecycleOwner, { database ->
+            mainViewModel.readRecipes.observeOnce(viewLifecycleOwner, { database ->
                 if (database.isNotEmpty()) {
                     mAdapter.setData(database[0].foodRecipe)
                     hideShimmer()
