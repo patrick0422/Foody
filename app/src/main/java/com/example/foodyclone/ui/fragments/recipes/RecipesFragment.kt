@@ -40,6 +40,10 @@ class RecipesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_recipes, container, false)
+        binding.apply {
+            lifecycleOwner = this@RecipesFragment
+            mainViewModel = mainViewModel
+        }
 
         setUpRecyclerView()
         readDatabase()
