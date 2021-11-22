@@ -10,7 +10,9 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavArgs
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.foodyclone.viewmodels.MainViewModel
 import com.example.foodyclone.R
@@ -24,6 +26,8 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RecipesFragment : Fragment() {
+    private val args by navArgs<RecipesFragmentArgs>()
+
     private lateinit var binding: FragmentRecipesBinding
     private lateinit var mainViewModel: MainViewModel
     private lateinit var recipesViewModel: RecipesViewModel
@@ -67,7 +71,7 @@ class RecipesFragment : Fragment() {
         lifecycleScope.launch {
             Log.d("RecipesFragment", "readDatabase: Called")
             mainViewModel.readRecipes.observeOnce(viewLifecycleOwner, { database ->
-                if (database.isNotEmpty()) {
+                if (database.isNotEmpty() && !args.backFromBottomSheet) {
                     mAdapter.setData(database[0].foodRecipe)
                     hideShimmer()
                 } else {
