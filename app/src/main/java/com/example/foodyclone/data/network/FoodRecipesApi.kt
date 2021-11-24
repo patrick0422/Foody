@@ -11,4 +11,5 @@ interface FoodRecipesApi {
         @QueryMap
         queries: Map<String, String>
     ): Response<FoodRecipe>
+
 }
