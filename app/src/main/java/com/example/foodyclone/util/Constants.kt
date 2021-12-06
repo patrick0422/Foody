@@ -2,6 +2,7 @@ package com.example.foodyclone.util
 
 class Constants {
     companion object {
+        const val TAG = "patrick0422" // 로그에 쓸 태그
 
         const val BASE_URL = "https://api.spoonacular.com"
         const val API_KEY = "fc491c9a9867484f8e228e340abe1ed7"
