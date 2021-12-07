@@ -61,7 +61,7 @@ class RecipesFragment : Fragment() {
             networkListener = NetworkListener()
             networkListener.checkNetworkAvailability(requireContext())
                 .collect { status ->
-                    Log.d(TAG, "onCreateView: $status")
+                    Log.d(TAG, "networkStatus: $status")
                 }
         }
 
