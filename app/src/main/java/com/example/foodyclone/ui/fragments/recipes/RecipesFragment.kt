@@ -2,10 +2,9 @@ package com.example.foodyclone.ui.fragments.recipes
 
 import android.os.Bundle
 import android.util.Log
+import android.view.*
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -54,6 +53,8 @@ class RecipesFragment : Fragment() {
             mainViewModel = mainViewModel
         }
 
+        setHasOptionsMenu(true)
+
         setUpRecyclerView()
 
         recipesViewModel.readBackOnline.observe(viewLifecycleOwner) {
@@ -90,6 +91,29 @@ class RecipesFragment : Fragment() {
         showShimmer()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.recipes_menu, menu)
+
+        val search = menu.findItem(R.id.menu_search)
+        val searchView = search.actionView as SearchView
+
+        searchView.isSubmitButtonEnabled = true
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (query != null) {
+                    searchApiData(query)
+                }
+
+                return true
+            }
+
+            override fun onQueryTextChange(p0: String?): Boolean {
+                return true
+            }
+
+        })
+    }
+
     private fun readDatabase() {
         lifecycleScope.launch {
             Log.d("RecipesFragment", "readDatabase: Called")
@@ -107,8 +131,8 @@ class RecipesFragment : Fragment() {
     private fun requestApiData() {
         Log.d("RecipesFragment", "requestApiData: Called")
         mainViewModel.getRecipes(recipesViewModel.applyQueries())
-        mainViewModel.recipesResponse.observe(viewLifecycleOwner, { response ->
-            when(response) {
+        mainViewModel.recipesResponse.observe(viewLifecycleOwner) { response ->
+            when (response) {
                 is NetworkResult.Success -> {
                     hideShimmer()
                     response.data?.let { mAdapter.setData(it) }
@@ -122,17 +146,38 @@ class RecipesFragment : Fragment() {
                     showShimmer()
                 }
             }
-        })
+        }
+    }
+
+    private fun searchApiData(searchQuery: String) {
+        showShimmer()
+        mainViewModel.searchRecipes(recipesViewModel.applySearchQueries(searchQuery))
+        mainViewModel.searchResponse.observe(this) { response ->
+            when (response) {
+                is NetworkResult.Success -> {
+                    hideShimmer()
+                    response.data?.let { mAdapter.setData(it) }
+                }
+                is NetworkResult.Error -> {
+                    hideShimmer()
+                    loadDataFromCache()
+                    Toast.makeText(requireContext(), response.message, Toast.LENGTH_SHORT).show()
+                }
+                is NetworkResult.Loading -> {
+                    showShimmer()
+                }
+            }
+        }
     }
 
     private fun loadDataFromCache() {
         lifecycleScope.launch {
-            mainViewModel.readRecipes.observe(viewLifecycleOwner, { database ->
+            mainViewModel.readRecipes.observe(viewLifecycleOwner) { database ->
                 if (database.isNotEmpty()) {
                     mAdapter.setData(database[0].foodRecipe)
                     hideShimmer()
                 }
-            })
+            }
         }
     }
 
