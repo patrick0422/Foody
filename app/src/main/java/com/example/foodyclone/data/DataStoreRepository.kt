@@ -2,6 +2,7 @@ package com.example.foodyclone.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.foodyclone.util.Constants
@@ -20,10 +21,28 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
     private object PreferenceKeys {
         val selectedMealType = stringPreferencesKey(Constants.PREFERENCES_MEAL_TYPE)
         val selectedMealTypeId = intPreferencesKey(Constants.PREFERENCES_MEAL_TYPE_ID)
-
         val selectedDietType = stringPreferencesKey(Constants.PREFERENCES_DIET_TYPE)
         val selectedDietTypeId = intPreferencesKey(Constants.PREFERENCES_DIET_TYPE_ID)
+
+        val backOnline = booleanPreferencesKey(Constants.PREFERENCES_BACK_ONLINE)
     }
+
+    suspend fun saveBackOnline(backOnline: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferenceKeys.backOnline] = backOnline
+        }
+    }
+
+    val readBackOnline: Flow<Boolean> = context.dataStore.data
+        .catch { exception ->
+            if (exception is IOException)
+                emit(emptyPreferences())
+            else
+                throw exception
+        }
+        .map { preferences ->
+            preferences[PreferenceKeys.backOnline] ?: false
+        }
 
     suspend fun saveMealAndDietType(
         mealType: String,

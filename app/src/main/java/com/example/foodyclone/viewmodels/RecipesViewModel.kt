@@ -1,7 +1,9 @@
 package com.example.foodyclone.viewmodels
 
 import android.app.Application
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.foodyclone.data.DataStoreRepository
 import com.example.foodyclone.util.Constants.Companion.API_KEY
@@ -29,7 +31,11 @@ class RecipesViewModel @Inject constructor(
     private var mealType = DEFAULT_MEAL_TYPE
     private var dietType = DEFAULT_DIET_TYPE
 
+    var networkStatus = false
+    var backOnline = false
+
     val readMealAndDietType = dataStoreRepository.readMealAndDietType
+    val readBackOnline = dataStoreRepository.readBackOnline.asLiveData()
 
     fun saveMealAndDietType(
         selectedMealType: String,
@@ -43,6 +49,10 @@ class RecipesViewModel @Inject constructor(
             selectedDietType,
             selectedDietTypeId
         )
+    }
+
+    fun saveBackOnline(backOnline: Boolean) = viewModelScope.launch {
+        dataStoreRepository.saveBackOnline(backOnline)
     }
 
     fun applyQueries(): HashMap<String, String> {
@@ -64,5 +74,17 @@ class RecipesViewModel @Inject constructor(
         queries[QUERY_FILL_INGREDIENTS] = "true"
 
         return queries
+    }
+
+    fun showNetworkStatus() {
+        if (!networkStatus) {
+            Toast.makeText(getApplication(), "No Internet Connection", Toast.LENGTH_SHORT).show()
+            saveBackOnline(true)
+        } else if (networkStatus) {
+            if (backOnline) {
+                Toast.makeText(getApplication(), "Internet Connected", Toast.LENGTH_SHORT).show()
+                saveBackOnline(false)
+            }
+        }
     }
 }
