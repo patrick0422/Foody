@@ -1,14 +1,32 @@
 package com.example.foodyclone.bindingadapters
 
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
+import androidx.navigation.findNavController
 import coil.load
 import com.example.foodyclone.R
+import com.example.foodyclone.models.Result
+import com.example.foodyclone.ui.fragments.recipes.RecipesFragmentDirections
+import com.example.foodyclone.util.Constants.Companion.TAG
 
 object RecipesRowBinding {
+
+    @JvmStatic
+    @BindingAdapter("onRecipeClickListener")
+    fun onRecipeClickListener(recipeRowLayout: ConstraintLayout, result: Result) = recipeRowLayout.setOnClickListener {
+        try {
+            val action = RecipesFragmentDirections.actionRecipesFragmentToDetailsActivity(result)
+            recipeRowLayout.findNavController().navigate(action)
+        } catch (e: Exception) {
+            Log.d(TAG, "onRecipeClickListener: ${e.stackTraceToString()}")
+        }
+    }
+
     @JvmStatic
     @BindingAdapter("setNumberOfLikes")
     fun setNumberOfLikes(textView: TextView, likes: Int) {
