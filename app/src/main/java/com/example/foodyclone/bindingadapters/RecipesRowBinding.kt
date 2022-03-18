@@ -1,5 +1,6 @@
 package com.example.foodyclone.bindingadapters
 
+import android.text.Html
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
@@ -13,6 +14,7 @@ import com.example.foodyclone.R
 import com.example.foodyclone.models.Result
 import com.example.foodyclone.ui.fragments.recipes.RecipesFragmentDirections
 import com.example.foodyclone.util.Constants.Companion.TAG
+import org.jsoup.Jsoup
 
 object RecipesRowBinding {
 
@@ -66,6 +68,15 @@ object RecipesRowBinding {
         imageView.load(imageUrl) {
             crossfade(600)
             error(R.drawable.ic_food)
+        }
+    }
+
+    @JvmStatic
+    @BindingAdapter("parseHtml")
+    fun parseHtml(textView: TextView, description: String?) {
+        if (description != null) {
+//            textView.text = Jsoup.parse(description).text()
+            textView.text = Html.fromHtml(description, Html.FROM_HTML_MODE_LEGACY)
         }
     }
 }
