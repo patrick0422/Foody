@@ -11,6 +11,7 @@ import com.example.foodyclone.databinding.ActivityDetailsBinding
 import com.example.foodyclone.ui.fragments.ingredients.IngredientsFragment
 import com.example.foodyclone.ui.fragments.instructions.InstructionsFragment
 import com.example.foodyclone.ui.fragments.overview.OverviewFragment
+import com.example.foodyclone.util.Constants.Companion.BUNDLE_RECIPE_KEY
 import com.google.android.material.tabs.TabLayoutMediator
 
 class DetailsActivity : AppCompatActivity() {
@@ -24,23 +25,22 @@ class DetailsActivity : AppCompatActivity() {
         toolbar.setTitleTextColor(getColor(R.color.white))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val fragments = arrayListOf(
-            OverviewFragment(),
-            IngredientsFragment(),
-            InstructionsFragment()
-        )
         val titles = arrayListOf(
             "OverView",
             "Ingredients",
             "Instructions"
         )
 
+        val bundle = Bundle()
+        bundle.putParcelable(BUNDLE_RECIPE_KEY, args.result)
         viewPager.adapter = PagerAdapter(
             this@DetailsActivity,
-            fragments,
-            Bundle().also {
-                it.putParcelable("recipeBundle", args.result)
-            }
+            bundle,
+            listOf(
+                OverviewFragment(),
+                IngredientsFragment(),
+                InstructionsFragment()
+            )
         )
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
