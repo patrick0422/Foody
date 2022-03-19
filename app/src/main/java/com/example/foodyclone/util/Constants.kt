@@ -5,6 +5,7 @@ class Constants {
         const val TAG = "patrick0422" // 로그에 쓸 태그
 
         const val BASE_URL = "https://api.spoonacular.com"
+        const val BASE_IMAGE_URL = "https://spoonacular.com/cdn/ingredients_100x100/"
         const val API_KEY = "fc491c9a9867484f8e228e340abe1ed7"
 
         // API Query Keys
