@@ -1,7 +1,7 @@
 package com.example.foodyclone.data
 
 import com.example.foodyclone.data.database.RecipesDao
-import com.example.foodyclone.data.database.RecipesEntity
+import com.example.foodyclone.data.database.entities.RecipesEntity
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
