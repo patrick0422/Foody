@@ -1,6 +1,7 @@
 package com.example.foodyclone.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
@@ -15,6 +16,7 @@ import com.example.foodyclone.ui.fragments.ingredients.IngredientsFragment
 import com.example.foodyclone.ui.fragments.instructions.InstructionsFragment
 import com.example.foodyclone.ui.fragments.overview.OverviewFragment
 import com.example.foodyclone.util.Constants.Companion.BUNDLE_RECIPE_KEY
+import com.example.foodyclone.util.Constants.Companion.TAG
 import com.example.foodyclone.viewmodels.MainViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
@@ -27,6 +29,7 @@ class DetailsActivity : AppCompatActivity() {
     private val args by navArgs<DetailsActivityArgs>()
 
     private var isRecipeSaved = false
+    private var savedRecipeId = 0
 
     override fun onCreate(savedInstanceState: Bundle?): Unit = with(binding) {
         super.onCreate(savedInstanceState)
@@ -58,32 +61,20 @@ class DetailsActivity : AppCompatActivity() {
         }.attach()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.details_menu, menu)
-
-        val menuItem = menu?.findItem(R.id.menu_save_to_favorites)
-        menuItem?.let { setFavoritesStatus(it) }
-
-        return true
-    }
-
-    private fun setFavoritesStatus(menuItem: MenuItem) {
+    private fun checkFavoritesStatus(menuItem: MenuItem) {
         mainViewModel.readFavoriteRecipes.observe(this) { response ->
-            if (response.map { it.result.recipeId }.contains(args.result.recipeId)) {
-                setMenuItemTint(menuItem, R.color.yellow)
-
+            response.filter {
+                it.result.recipeId == args.result.recipeId
+            }.let {
+                Log.d(TAG, "checkFavoritesStatus: ${it.size}")
+                
+                if (it.isNotEmpty()) {
+                    savedRecipeId = it[0].id
+                    isRecipeSaved = true
+                    setMenuItemTint(menuItem, R.color.yellow)
+                }
             }
         }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-        } else if (item.itemId == R.id.menu_save_to_favorites) {
-            saveToFavorites(item)
-        }
-
-        return super.onOptionsItemSelected(item)
     }
 
     private fun saveToFavorites(item: MenuItem) {
@@ -92,7 +83,20 @@ class DetailsActivity : AppCompatActivity() {
         )
         setMenuItemTint(item, R.color.yellow)
         makeSnackbar(message = "Saved")
+
+        isRecipeSaved = true
     }
+
+    private fun removeFromFavorites(item: MenuItem) {
+        mainViewModel.deleteFavoriteRecipes(
+            FavoritesEntity(savedRecipeId, args.result)
+        )
+
+        setMenuItemTint(item, R.color.white)
+        makeSnackbar("Recipe Removed")
+        isRecipeSaved = false
+    }
+
     private fun makeSnackbar(message: String) {
         Snackbar.make(binding.detailsLayout, message, Snackbar.LENGTH_SHORT)
             .setAction("Okay") {}
@@ -101,5 +105,30 @@ class DetailsActivity : AppCompatActivity() {
 
     private fun setMenuItemTint(menuItem: MenuItem, colorId: Int) {
         menuItem.icon.setTint(resources.getColor(colorId, null))
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.details_menu, menu)
+
+        val menuItem = menu?.findItem(R.id.menu_save_to_favorites)
+        menuItem?.let {
+            checkFavoritesStatus(it)
+            setMenuItemTint(it, R.color.white)
+        }
+
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            finish()
+        } else if (item.itemId == R.id.menu_save_to_favorites) {
+            if (isRecipeSaved)
+                removeFromFavorites(item)
+            else
+                saveToFavorites(item)
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 }
