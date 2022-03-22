@@ -12,11 +12,23 @@ import androidx.navigation.findNavController
 import coil.load
 import com.example.foodyclone.R
 import com.example.foodyclone.models.Result
+import com.example.foodyclone.ui.fragments.favorites.FavoriteRecipesFragmentDirections
 import com.example.foodyclone.ui.fragments.recipes.RecipesFragmentDirections
 import com.example.foodyclone.util.Constants.Companion.TAG
 import org.jsoup.Jsoup
 
 object RecipesRowBinding {
+
+    @JvmStatic
+    @BindingAdapter("onFavoriteRecipeClickListener")
+    fun onFavoriteRecipeClickListener(recipeRowLayout: ConstraintLayout, result: Result) = recipeRowLayout.setOnClickListener {
+        try {
+            val action = FavoriteRecipesFragmentDirections.actionFavoriteRecipesFragmentToDetailsActivity(result)
+            recipeRowLayout.findNavController().navigate(action)
+        } catch (e: Exception) {
+            Log.d(TAG, "onRecipeClickListener: ${e.stackTraceToString()}")
+        }
+    }
 
     @JvmStatic
     @BindingAdapter("onRecipeClickListener")
