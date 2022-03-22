@@ -69,8 +69,9 @@ class DetailsActivity : AppCompatActivity() {
 
     private fun setFavoritesStatus(menuItem: MenuItem) {
         mainViewModel.readFavoriteRecipes.observe(this) { response ->
-            if (response.map { it.result.id }.contains(args.result.id)) {
+            if (response.map { it.result.recipeId }.contains(args.result.recipeId)) {
                 setMenuItemTint(menuItem, R.color.yellow)
+
             }
         }
     }
