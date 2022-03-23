@@ -34,7 +34,7 @@ class FavoriteRecipesFragment : Fragment() {
 
     private fun loadFavorites() {
         mainViewModel.readFavoriteRecipes.observe(viewLifecycleOwner) { response ->
-            mAdapter.setData(FoodRecipe(response.map { it.result }))
+            mAdapter.setData(response)
         }
     }
 }
