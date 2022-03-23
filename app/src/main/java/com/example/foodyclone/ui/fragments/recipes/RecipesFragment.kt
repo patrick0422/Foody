@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavArgs
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,7 +22,6 @@ import com.example.foodyclone.util.NetworkResult
 import com.example.foodyclone.util.observeOnce
 import com.example.foodyclone.viewmodels.RecipesViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -49,7 +47,7 @@ class RecipesFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_recipes, container, false)
         binding.apply {
-            lifecycleOwner = this@RecipesFragment
+            lifecycleOwner = viewLifecycleOwner
             mainViewModel = mainViewModel
         }
 
@@ -75,8 +73,7 @@ class RecipesFragment : Fragment() {
         binding.recipesFab.setOnClickListener {
             if (recipesViewModel.networkStatus) {
                 findNavController().navigate(R.id.action_recipesFragment_to_recipesBottomSheet)
-            }
-            else {
+            } else {
                 recipesViewModel.showNetworkStatus()
             }
         }
@@ -152,7 +149,7 @@ class RecipesFragment : Fragment() {
     private fun searchApiData(searchQuery: String) {
         showShimmer()
         mainViewModel.searchRecipes(recipesViewModel.applySearchQueries(searchQuery))
-        mainViewModel.searchResponse.observe(this) { response ->
+        mainViewModel.searchResponse.observe(viewLifecycleOwner) { response ->
             when (response) {
                 is NetworkResult.Success -> {
                     hideShimmer()
