@@ -2,12 +2,14 @@ package com.example.foodyclone.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.foodyclone.data.database.entities.FavoritesEntity
 import com.example.foodyclone.databinding.FavoriteRecipesRowLayoutBinding
 import com.example.foodyclone.models.FoodRecipe
 import com.example.foodyclone.models.Result
+import com.example.foodyclone.ui.fragments.favorites.FavoriteRecipesFragmentDirections
 import com.example.foodyclone.util.RecipesDiffUtil
 
 class FavoritesAdapter : RecyclerView.Adapter<FavoritesAdapter.FavoriteHolder>() {
@@ -16,6 +18,12 @@ class FavoritesAdapter : RecyclerView.Adapter<FavoritesAdapter.FavoriteHolder>()
     class FavoriteHolder(private val binding: FavoriteRecipesRowLayoutBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(favoritesEntity: FavoritesEntity) {
             binding.favoritesEntity = favoritesEntity
+
+            binding.favoriteRecipesRowLayout.setOnClickListener {
+                val action = FavoriteRecipesFragmentDirections.actionFavoriteRecipesFragmentToDetailsActivity(favoritesEntity.result)
+                it.findNavController().navigate(action)
+            }
+
             binding.executePendingBindings()
         }
 
