@@ -17,44 +17,65 @@ class FavoritesAdapter(
 ) : RecyclerView.Adapter<FavoriteHolder>() {
     private var recipes = emptyList<FavoritesEntity>()
     private var selectedRecipes = arrayListOf<FavoritesEntity>()
+    private var multiSelection = false
+
+    private var viewHolders = arrayListOf<FavoriteHolder>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = FavoriteHolder.from(parent)
 
     override fun onBindViewHolder(holder: FavoriteHolder, position: Int) = with(holder.binding) {
+        val currentRecipes = recipes[position]
+        favoritesEntity = currentRecipes
 
-        favoritesEntity = favoritesEntity
+        viewHolders.add(holder)
 
         favoriteRecipesRowLayout.setOnClickListener {
-            val action = FavoriteRecipesFragmentDirections.actionFavoriteRecipesFragmentToDetailsActivity(favoritesEntity.result)
-            it.findNavController().navigate(action)
+            if (multiSelection) {
+                applySelection(holder, currentRecipes)
+            } else {
+                val action = FavoriteRecipesFragmentDirections.actionFavoriteRecipesFragmentToDetailsActivity(currentRecipes.result)
+                it.findNavController().navigate(action)
+            }
         }
 
         favoriteRecipesRowLayout.setOnLongClickListener {
-            requireActivity.startActionMode(object : ActionMode.Callback {
-                override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
-                    mode?.menuInflater?.inflate(R.menu.favorites_contextual_menu, menu)
-                    applyStatusBarColor(requireActivity, R.color.contextualStatusBarColor)
-                    return true
-                }
-                override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+            if (!multiSelection) {
+                multiSelection = true
+                requireActivity.startActionMode(object : ActionMode.Callback {
+                    override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+                        mode?.menuInflater?.inflate(R.menu.favorites_contextual_menu, menu)
+                        applyStatusBarColor(R.color.contextualStatusBarColor)
+                        return true
+                    }
+                    override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
 
-                    return true
-                }
-                override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
+                        return true
+                    }
+                    override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
 
-                    return true
-                }
-                override fun onDestroyActionMode(mode: ActionMode?) {
-                    applyStatusBarColor(requireActivity, R.color.statusBarColor)
-                }
-            })
-            true
+                        return true
+                    }
+                    override fun onDestroyActionMode(mode: ActionMode?) {
+                        viewHolders.forEach { holder ->
+                            changeRecipeStyle(holder, R.color.cardBackgroundColor, R.color.strokeColor)
+                        }
+                        multiSelection = false
+                        selectedRecipes.clear()
+                        applyStatusBarColor(R.color.statusBarColor)
+                    }
+                })
+                applySelection(holder, recipes[position])
+                true
+            } else {
+                multiSelection = false
+                false
+            }
         }
 
         executePendingBindings()
     }
 
-    private fun applyStatusBarColor(requireActivity: FragmentActivity, color: Int) {
+    private fun applyStatusBarColor(color: Int) {
         requireActivity.window.statusBarColor = ContextCompat.getColor(requireActivity, color)
     }
 
@@ -63,7 +84,7 @@ class FavoritesAdapter(
     private fun applySelection(holder: FavoriteHolder, selectedRecipe: FavoritesEntity) {
         if (selectedRecipes.contains(selectedRecipe)) {
             selectedRecipes.remove(selectedRecipe)
-            changeRecipeStyle(holder, R.color.cardBackgroundColor, R.color.strokeColor)
+            changeRecipeStyle(holder, R.color.cardBackgroundColor, R.color.transparent)
         }
         else {
             selectedRecipes.add(selectedRecipe)
@@ -77,7 +98,7 @@ class FavoritesAdapter(
         strokeColor: Int
     ) {
         holder.binding.apply {
-            favoriteRecipesRowLayout.setBackgroundColor(ContextCompat.getColor(requireActivity, backGroundColor))
+            cardViewBackground.setBackgroundColor(ContextCompat.getColor(requireActivity, backGroundColor))
             favoriteRowCardView.strokeColor = strokeColor
         }
     }
@@ -92,8 +113,6 @@ class FavoritesAdapter(
 }
 
 class FavoriteHolder(val binding: FavoriteRecipesRowLayoutBinding): RecyclerView.ViewHolder(binding.root) {
-    private var multiSelection = false
-
     companion object {
         fun from(parent: ViewGroup): FavoriteHolder = FavoriteHolder(
             FavoriteRecipesRowLayoutBinding.inflate(

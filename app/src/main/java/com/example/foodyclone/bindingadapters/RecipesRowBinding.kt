@@ -15,7 +15,6 @@ import com.example.foodyclone.models.Result
 import com.example.foodyclone.ui.fragments.favorites.FavoriteRecipesFragmentDirections
 import com.example.foodyclone.ui.fragments.recipes.RecipesFragmentDirections
 import com.example.foodyclone.util.Constants.Companion.TAG
-import org.jsoup.Jsoup
 
 object RecipesRowBinding {
 
