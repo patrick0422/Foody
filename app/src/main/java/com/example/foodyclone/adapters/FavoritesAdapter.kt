@@ -84,7 +84,7 @@ class FavoritesAdapter(
     private fun applySelection(holder: FavoriteHolder, selectedRecipe: FavoritesEntity) {
         if (selectedRecipes.contains(selectedRecipe)) {
             selectedRecipes.remove(selectedRecipe)
-            changeRecipeStyle(holder, R.color.cardBackgroundColor, R.color.transparent)
+            changeRecipeStyle(holder, R.color.cardBackgroundColor, R.color.strokeColor)
         }
         else {
             selectedRecipes.add(selectedRecipe)
@@ -92,14 +92,10 @@ class FavoritesAdapter(
         }
     }
 
-    private fun changeRecipeStyle(
-        holder: FavoriteHolder,
-        backGroundColor: Int,
-        strokeColor: Int
-    ) {
+    private fun changeRecipeStyle(holder: FavoriteHolder, backGroundColor: Int, strokeColor: Int) {
         holder.binding.apply {
             cardViewBackground.setBackgroundColor(ContextCompat.getColor(requireActivity, backGroundColor))
-            favoriteRowCardView.strokeColor = strokeColor
+            favoriteRowCardView.strokeColor = ContextCompat.getColor(requireActivity, strokeColor)
         }
     }
 
