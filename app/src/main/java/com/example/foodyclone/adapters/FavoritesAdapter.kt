@@ -11,9 +11,11 @@ import com.example.foodyclone.data.database.entities.FavoritesEntity
 import com.example.foodyclone.databinding.FavoriteRecipesRowLayoutBinding
 import com.example.foodyclone.ui.fragments.favorites.FavoriteRecipesFragmentDirections
 import com.example.foodyclone.util.RecipesDiffUtil
+import com.example.foodyclone.viewmodels.MainViewModel
 
 class FavoritesAdapter(
-    private val requireActivity: FragmentActivity
+    private val requireActivity: FragmentActivity,
+    private val mainViewModel: MainViewModel
 ) : RecyclerView.Adapter<FavoriteHolder>() {
     private var recipes = emptyList<FavoritesEntity>()
     private var selectedRecipes = arrayListOf<FavoritesEntity>()
