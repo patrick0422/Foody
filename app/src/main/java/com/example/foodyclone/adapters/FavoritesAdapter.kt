@@ -21,6 +21,8 @@ class FavoritesAdapter(
 
     private var viewHolders = arrayListOf<FavoriteHolder>()
 
+    private lateinit var mActionMode: ActionMode
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = FavoriteHolder.from(parent)
 
     override fun onBindViewHolder(holder: FavoriteHolder, position: Int) = with(holder.binding) {
@@ -44,6 +46,7 @@ class FavoritesAdapter(
                 requireActivity.startActionMode(object : ActionMode.Callback {
                     override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
                         mode?.menuInflater?.inflate(R.menu.favorites_contextual_menu, menu)
+                        mActionMode = mode!!
                         applyStatusBarColor(R.color.contextualStatusBarColor)
                         return true
                     }
@@ -89,6 +92,21 @@ class FavoritesAdapter(
         else {
             selectedRecipes.add(selectedRecipe)
             changeRecipeStyle(holder, R.color.cardBackgroundLightColor, R.color.colorPrimary)
+        }
+        applyActionModeTitle()
+    }
+
+    private fun applyActionModeTitle() {
+        when(selectedRecipes.size) {
+            0 -> {
+                mActionMode.finish()
+            }
+            1 -> {
+                mActionMode.title = "${selectedRecipes.size} Item Selected"
+            }
+            else -> {
+                mActionMode.title = "${selectedRecipes.size} Items Selected"
+            }
         }
     }
 
