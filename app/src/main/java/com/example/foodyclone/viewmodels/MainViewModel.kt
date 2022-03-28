@@ -7,6 +7,7 @@ import android.net.NetworkCapabilities
 import androidx.lifecycle.*
 import com.example.foodyclone.data.Repository
 import com.example.foodyclone.data.database.entities.FavoritesEntity
+import com.example.foodyclone.data.database.entities.FoodJokeEntity
 import com.example.foodyclone.data.database.entities.RecipesEntity
 import com.example.foodyclone.models.FoodJoke
 import com.example.foodyclone.models.FoodRecipe
@@ -27,13 +28,12 @@ class MainViewModel @Inject constructor(
     /** ROOM */
 
     val readRecipes: LiveData<List<RecipesEntity>> = repository.local.readRecipes().asLiveData()
+    val readFavoriteRecipes: LiveData<List<FavoritesEntity>> = repository.local.readFavoriteRecipes().asLiveData()
+    val readFoodJoke: LiveData<FoodJokeEntity> = repository.local.readFoodJoke().asLiveData()
 
-    private fun insertRecipes(recipesEntity: RecipesEntity) = viewModelScope.launch(Dispatchers.IO) {
+    private fun insertRecipes(recipesEntity: RecipesEntity) = viewModelScope.launch {
         repository.local.insertRecipes(recipesEntity)
     }
-
-    val readFavoriteRecipes: LiveData<List<FavoritesEntity>> =
-        repository.local.readFavoriteRecipes().asLiveData()
 
     fun insertFavoriteRecipes(favoritesEntity: FavoritesEntity) = viewModelScope.launch {
         repository.local.insertFavoriteRecipes(favoritesEntity)
@@ -47,7 +47,9 @@ class MainViewModel @Inject constructor(
         repository.local.deleteAllFavoriteRecipes()
     }
 
-
+    fun insertFoodJoke(foodJokeEntity: FoodJokeEntity) = viewModelScope.launch {
+        repository.local.insertFoodJoke(foodJokeEntity)
+    }
 
     /** RETROFIT */
 
@@ -110,7 +112,9 @@ class MainViewModel @Inject constructor(
             try {
                 val response = repository.remote.getRandomFoodJoke()
                 foodJokeResponse.value = handleFoodJokeResponse(response)
-
+                foodJokeResponse.value?.data?.let {
+                    offlineCacheFoodJoke(it)
+                }
             } catch (e: Exception) {
                 foodJokeResponse.value = NetworkResult.Error("Recipe not found.")
             }
@@ -139,6 +143,11 @@ class MainViewModel @Inject constructor(
     private fun offlineCacheRecipes(foodRecipe: FoodRecipe) {
         val recipesEntity = RecipesEntity(foodRecipe)
         insertRecipes(recipesEntity)
+    }
+
+    private fun offlineCacheFoodJoke(foodJoke: FoodJoke) {
+        val foodJokeEntity = FoodJokeEntity(foodJoke)
+        insertFoodJoke(foodJokeEntity)
     }
 
     private fun handleFoodRecipesResponse(response: Response<FoodRecipe>): NetworkResult<FoodRecipe> {

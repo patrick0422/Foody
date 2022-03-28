@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import com.example.foodyclone.R
+import com.example.foodyclone.data.database.entities.FoodJokeEntity
 import com.example.foodyclone.databinding.FragmentFoodJokeBinding
 import com.example.foodyclone.util.NetworkResult
 import com.example.foodyclone.viewmodels.MainViewModel
@@ -24,21 +25,33 @@ class FoodJokeFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_food_joke, container, false)
 
+
+        binding.mainViewModel = mainViewModel
+        binding.lifecycleOwner = viewLifecycleOwner
+
         mainViewModel.getFoodJoke()
         mainViewModel.foodJokeResponse.observe(viewLifecycleOwner) { response ->
-            when(response) {
-                is NetworkResult.Loading -> {
-
-                }
+            binding.foodJokeTextView.text = when (response) {
                 is NetworkResult.Success -> {
-                    binding.foodJokeTextView.text = response.data!!.text
+                    response.data!!.text
                 }
                 is NetworkResult.Error -> {
-                    binding.foodJokeTextView.text = response.message
+                    response.message
+                }
+                is NetworkResult.Loading -> {
+                    "Loading...."
                 }
             }
         }
 
         return binding.root
+    }
+
+    private fun loadDataFromCache() {
+        mainViewModel.readFoodJoke.observe(viewLifecycleOwner) {
+            if (it != null) {
+                mainViewModel.insertFoodJoke(it)
+            }
+        }
     }
 }
