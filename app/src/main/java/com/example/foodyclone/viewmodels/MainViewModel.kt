@@ -8,6 +8,7 @@ import androidx.lifecycle.*
 import com.example.foodyclone.data.Repository
 import com.example.foodyclone.data.database.entities.FavoritesEntity
 import com.example.foodyclone.data.database.entities.RecipesEntity
+import com.example.foodyclone.models.FoodJoke
 import com.example.foodyclone.models.FoodRecipe
 import com.example.foodyclone.util.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -54,12 +55,18 @@ class MainViewModel @Inject constructor(
 
     val searchResponse: MutableLiveData<NetworkResult<FoodRecipe>> = MutableLiveData()
 
+    val foodJokeResponse: MutableLiveData<NetworkResult<FoodJoke>> = MutableLiveData()
+
     fun getRecipes(queries: Map<String, String>) = viewModelScope.launch {
         getRecipesSafeCall(queries)
     }
 
     fun searchRecipes(searchQuery: Map<String, String>) = viewModelScope.launch {
         searchQuerySafeCall(searchQuery)
+    }
+
+    fun getFoodJoke() = viewModelScope.launch {
+        getFoodJokeSafeCall()
     }
 
     private suspend fun getRecipesSafeCall(queries: Map<String, String>) {
@@ -69,7 +76,7 @@ class MainViewModel @Inject constructor(
                 val response = repository.remote.getRecipes(queries)
                 recipesResponse.value = handleFoodRecipesResponse(response)
 
-                val foodRecipe = recipesResponse.value!!.data.also {
+                recipesResponse.value!!.data.also {
                     if (it != null) {
                         offlineCacheRecipes(it)
                     }
@@ -97,12 +104,44 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    private suspend fun getFoodJokeSafeCall() {
+        foodJokeResponse.value = NetworkResult.Loading()
+        if (hasInternetConnection()) {
+            try {
+                val response = repository.remote.getRandomFoodJoke()
+                foodJokeResponse.value = handleFoodJokeResponse(response)
+
+            } catch (e: Exception) {
+                foodJokeResponse.value = NetworkResult.Error("Recipe not found.")
+            }
+        } else {
+            foodJokeResponse.value = NetworkResult.Error("No internet connection.")
+        }
+    }
+
+    private fun handleFoodJokeResponse(response: Response<FoodJoke>): NetworkResult<FoodJoke> {
+        when {
+            response.message().contains("timeout") -> {
+                return NetworkResult.Error("Timeout")
+            }
+            response.code() == 402 -> {
+                return NetworkResult.Error("API key limited.")
+            }
+            response.isSuccessful -> {
+                return NetworkResult.Success(response.body()!!)
+            }
+            else -> {
+                return NetworkResult.Error(response.message())
+            }
+        }
+    }
+
     private fun offlineCacheRecipes(foodRecipe: FoodRecipe) {
         val recipesEntity = RecipesEntity(foodRecipe)
         insertRecipes(recipesEntity)
     }
 
-    private fun handleFoodRecipesResponse(response: Response<FoodRecipe>): NetworkResult<FoodRecipe>? {
+    private fun handleFoodRecipesResponse(response: Response<FoodRecipe>): NetworkResult<FoodRecipe> {
         when {
             response.message().contains("timeout") -> {
                 return NetworkResult.Error("Timeout")
