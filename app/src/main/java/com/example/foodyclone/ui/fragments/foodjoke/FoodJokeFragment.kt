@@ -1,5 +1,6 @@
 package com.example.foodyclone.ui.fragments.foodjoke
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
@@ -10,7 +11,6 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import com.example.foodyclone.R
-import com.example.foodyclone.data.database.entities.FoodJokeEntity
 import com.example.foodyclone.databinding.FragmentFoodJokeBinding
 import com.example.foodyclone.util.NetworkResult
 import com.example.foodyclone.viewmodels.MainViewModel
@@ -20,6 +20,8 @@ import dagger.hilt.android.AndroidEntryPoint
 class FoodJokeFragment : Fragment() {
     private lateinit var binding: FragmentFoodJokeBinding
     private val mainViewModel: MainViewModel by viewModels()
+
+    private var foodJoke = "No Food Joke"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,6 +40,7 @@ class FoodJokeFragment : Fragment() {
             when (response) {
                 is NetworkResult.Success -> {
                     binding.foodJokeTextView.text = response.data!!.text
+                    foodJoke = response.data.text
                 }
                 is NetworkResult.Error -> {
                     loadDataFromCache()
@@ -60,6 +63,7 @@ class FoodJokeFragment : Fragment() {
         mainViewModel.readFoodJoke.observe(viewLifecycleOwner) { database ->
             if (!database.isNullOrEmpty()) {
                 binding.foodJokeTextView.text = database[0].foodJoke.text
+                foodJoke = database[0].foodJoke.text
             }
         }
     }
@@ -70,7 +74,12 @@ class FoodJokeFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (item.itemId == R.id.food_joke_share_menu) {
-
+            val shareIntent = Intent().apply {
+                this.action = Intent.ACTION_SEND
+                this.putExtra(Intent.EXTRA_TEXT, foodJoke)
+                this.type = "text/plain"
+            }
+            startActivity(shareIntent)
 
             true
         } else {
