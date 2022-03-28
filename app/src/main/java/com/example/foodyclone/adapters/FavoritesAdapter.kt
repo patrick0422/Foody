@@ -12,6 +12,7 @@ import com.example.foodyclone.databinding.FavoriteRecipesRowLayoutBinding
 import com.example.foodyclone.ui.fragments.favorites.FavoriteRecipesFragmentDirections
 import com.example.foodyclone.util.RecipesDiffUtil
 import com.example.foodyclone.viewmodels.MainViewModel
+import com.google.android.material.snackbar.Snackbar
 
 class FavoritesAdapter(
     private val requireActivity: FragmentActivity,
@@ -57,6 +58,11 @@ class FavoritesAdapter(
                         return true
                     }
                     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
+                        if (item?.itemId == R.id.delete_favorite_recipe_menu) {
+                            selectedRecipes.forEach { mainViewModel.deleteFavoriteRecipes(it) }
+                            Snackbar.make(holder.itemView, "${selectedRecipes.size} Recipe(s) Deleted", Snackbar.LENGTH_SHORT).show()
+                            mode?.finish()
+                        }
 
                         return true
                     }
@@ -125,6 +131,11 @@ class FavoritesAdapter(
         recipes = newData
 
         diffUtilResult.dispatchUpdatesTo(this)
+    }
+
+    fun clearContextualActionMode() {
+        if (this::mActionMode.isInitialized)
+            mActionMode.finish()
     }
 }
 
