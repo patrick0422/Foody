@@ -24,7 +24,7 @@ class LocalDataSource @Inject constructor(
 
     suspend fun deleteAllFavoriteRecipes() = recipesDao.deleteAllFavoriteRecipes()
 
-    fun readFoodJoke(): Flow<FoodJokeEntity> = recipesDao.readFoodJoke()
+    fun readFoodJoke(): Flow<List<FoodJokeEntity>> = recipesDao.readFoodJoke()
 
     suspend fun insertFoodJoke(foodJokeEntity: FoodJokeEntity) = recipesDao.insertFoodJoke(foodJokeEntity)
 }

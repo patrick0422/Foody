@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import com.example.foodyclone.R
@@ -31,15 +32,20 @@ class FoodJokeFragment : Fragment() {
 
         mainViewModel.getFoodJoke()
         mainViewModel.foodJokeResponse.observe(viewLifecycleOwner) { response ->
-            binding.foodJokeTextView.text = when (response) {
+            when (response) {
                 is NetworkResult.Success -> {
-                    response.data!!.text
+                    binding.foodJokeTextView.text = response.data!!.text
                 }
                 is NetworkResult.Error -> {
-                    response.message
+                    loadDataFromCache()
+                    Toast.makeText(
+                        requireContext(),
+                        response.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 is NetworkResult.Loading -> {
-                    "Loading...."
+
                 }
             }
         }
@@ -48,9 +54,9 @@ class FoodJokeFragment : Fragment() {
     }
 
     private fun loadDataFromCache() {
-        mainViewModel.readFoodJoke.observe(viewLifecycleOwner) {
-            if (it != null) {
-                mainViewModel.insertFoodJoke(it)
+        mainViewModel.readFoodJoke.observe(viewLifecycleOwner) { database ->
+            if (!database.isNullOrEmpty()) {
+                binding.foodJokeTextView.text = database[0].foodJoke.text
             }
         }
     }

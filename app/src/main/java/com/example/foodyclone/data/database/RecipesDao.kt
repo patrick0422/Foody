@@ -31,5 +31,5 @@ interface RecipesDao {
     suspend fun insertFoodJoke(foodJokeEntity: FoodJokeEntity)
 
     @Query("SELECT * FROM food_joke_table")
-    fun readFoodJoke(): Flow<FoodJokeEntity>
+    fun readFoodJoke(): Flow<List<FoodJokeEntity>>
 }
