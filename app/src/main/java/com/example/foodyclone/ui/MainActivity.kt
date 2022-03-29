@@ -11,6 +11,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.foodyclone.R
 import com.example.foodyclone.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.runBlocking
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -19,6 +20,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Thread.sleep(400)
+        setTheme(R.style.Theme_FoodyClone)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
